@@ -1,6 +1,6 @@
 import { Command } from 'commander';
-import { api } from './config/api';
 import 'dotenv/config';
+import { api } from './config/apiBins';
 const program = new Command();
 export enum status {
   inProgress = 'in-progress',

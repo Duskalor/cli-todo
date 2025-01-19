@@ -1,24 +1,54 @@
-import fs from 'fs/promises';
 import { status } from '..';
+import { ITaskResponse } from '../interface/task.interface';
+import { BIN_ID, URL, XAccessKey, XMasterKey } from '../lib/config';
+
+const getData = async () => {
+  const res = await fetch(`${URL}/${BIN_ID}`, {
+    method: 'GET',
+    headers: {
+      'X-Master-Key': XMasterKey,
+      'X-Access-Key': XAccessKey,
+    },
+  });
+  const {
+    record: { tasks },
+  } = await res.json();
+  return tasks as ITaskResponse[];
+};
+
+const updatedata = async (data: any) => {
+  const res = await fetch(`${URL}/${BIN_ID}`, {
+    method: 'PUT',
+    headers: {
+      'X-Master-Key': XMasterKey,
+      'X-Access-Key': XAccessKey,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ tasks: data }),
+  });
+  const a = await res.json();
+  console.log({ a });
+};
 
 export const api = {
-  writeTasks: async (tasks: any) =>
-    await fs.writeFile('./DB.json', JSON.stringify({ tasks }, null, 2)),
+  writeTasks: async (tasks: ITaskResponse[]) => {
+    await updatedata(tasks);
+  },
 
   getTasks: async (status?: status) => {
-    const data = await fs.readFile('./DB.json');
-    const { tasks } = JSON.parse(data.toString('utf8'));
-    return status ? tasks.filter((t: any) => t.status === status) : tasks;
+    const tasks = await getData();
+    return status ? tasks.filter((v: any) => v.status === status) : tasks;
   },
 
   getTaskbyId: async (id: number) => {
-    const tasks = await api.getTasks();
-    return tasks.find((t: any) => t.id === id);
+    const tasks = await getData();
+    return tasks.find((v: any) => v.id === id);
   },
 
   addTask: async (task: any) => {
     try {
-      const tasks = await api.getTasks();
+      const tasks = await getData();
+      console.log(tasks);
       tasks.push({
         task,
         id: tasks.length + 1,
@@ -26,9 +56,9 @@ export const api = {
         createAt: new Date(),
         updateAt: new Date(),
       });
-      await api.writeTasks(tasks);
+      await updatedata(tasks);
     } catch (error) {
-      await api.writeTasks([
+      await updatedata([
         {
           task,
           id: 1,
@@ -41,26 +71,28 @@ export const api = {
   },
 
   updateTask: async (id: string, task: any) => {
-    const tasks = await api.getTasks();
+    const tasks = await getData();
     const indexTask = tasks.findIndex((v: any) => v.id === +id);
     const newTasks = tasks.with(indexTask, {
       ...tasks[indexTask],
       task,
       updateAt: new Date(),
     });
-    await api.writeTasks(newTasks);
+    await updatedata(newTasks);
+    console.log(`status correctamente actualizado en id : ${id}`);
   },
   deleteTask: async (id: string) => {
-    const tasks = await api.getTasks();
+    const tasks = await getData();
     const taskUpdate = tasks.filter((v: any) => v.id !== +id);
-    await api.writeTasks(taskUpdate);
+    await updatedata(taskUpdate);
+    console.log(`status correctamente actualizado en id : ${id}`);
   },
 
   changeStatus: async (id: string, status: status) => {
-    const tasks = await api.getTasks();
+    const tasks = await getData();
     const indexTask = tasks.findIndex((v: any) => v.id === +id);
     const newTasks = tasks.with(indexTask, { ...tasks[indexTask], status });
-    await api.writeTasks(newTasks);
+    await updatedata(newTasks);
     console.log(`status correctamente actualizado en id : ${id}`);
   },
 };
