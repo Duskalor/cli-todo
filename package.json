@@ -11,12 +11,14 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "ts-node-dev": "2.0.0",
-    "typescript": "5.7.3",
+    "@types/node": "22.10.7",
     "dotenv": "16.4.7",
-    "@types/node": "22.10.7"
+    "ts-node-dev": "2.0.0",
+    "typescript": "5.7.3"
   },
   "dependencies": {
-    "commander": "13.0.0"
+    "cli-table3": "^0.6.5",
+    "commander": "13.0.0",
+    "dayjs": "^1.11.13"
   }
 }

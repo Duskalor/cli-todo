@@ -1,6 +1,9 @@
 import { Command } from 'commander';
 import 'dotenv/config';
 import { api } from './config/apiBins';
+import Table from 'cli-table3';
+import dayjs from 'dayjs';
+
 const program = new Command();
 export enum status {
   inProgress = 'in-progress',
@@ -12,7 +15,23 @@ program.version('1.0.0').description('A simple todo list');
 
 program.command('list').action(async () => {
   const tasks = await api.getTasks();
-  console.log(JSON.stringify(tasks, null, 2));
+  // const headerTable = Object.keys(tasks[0]);
+  // console.log(headerTable);
+  const table = new Table({
+    head: ['id', 'task', 'status', 'createAt', 'updateAt'],
+  });
+
+  // Agrega filas a la tabla
+  table.push(
+    ...tasks.map((task: any) => [
+      task.id,
+      task.task,
+      task.status,
+      dayjs(task.createAt).format('DD/MM/YYYY HH:mm'),
+      dayjs(task.updateAt).format('DD/MM/YYYY HH:mm'),
+    ])
+  );
+  console.log(table.toString());
 });
 
 program.command('add <task>').action(async (task) => {

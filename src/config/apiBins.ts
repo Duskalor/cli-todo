@@ -17,7 +17,7 @@ const getData = async () => {
 };
 
 const updatedata = async (data: any) => {
-  const res = await fetch(`${URL}/${BIN_ID}`, {
+  await fetch(`${URL}/${BIN_ID}`, {
     method: 'PUT',
     headers: {
       'X-Master-Key': XMasterKey,
@@ -26,8 +26,6 @@ const updatedata = async (data: any) => {
     },
     body: JSON.stringify({ tasks: data }),
   });
-  const a = await res.json();
-  console.log({ a });
 };
 
 export const api = {
@@ -48,10 +46,10 @@ export const api = {
   addTask: async (task: any) => {
     try {
       const tasks = await getData();
-      console.log(tasks);
+      const maxId = tasks.reduce((max, t) => (t.id > max ? t.id : max), 0);
       tasks.push({
         task,
-        id: tasks.length + 1,
+        id: maxId + 1,
         status: status.todo,
         createAt: new Date(),
         updateAt: new Date(),
@@ -73,6 +71,7 @@ export const api = {
   updateTask: async (id: string, task: any) => {
     const tasks = await getData();
     const indexTask = tasks.findIndex((v: any) => v.id === +id);
+    if (indexTask === -1) return console.log(`No existe el id: ${id}`);
     const newTasks = tasks.with(indexTask, {
       ...tasks[indexTask],
       task,

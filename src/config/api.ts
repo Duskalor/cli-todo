@@ -20,8 +20,8 @@ export const api = {
     try {
       const tasks = await api.getTasks();
       tasks.push({
-        task,
         id: tasks.length + 1,
+        task,
         status: status.todo,
         createAt: new Date(),
         updateAt: new Date(),
@@ -30,8 +30,8 @@ export const api = {
     } catch (error) {
       await api.writeTasks([
         {
-          task,
           id: 1,
+          task,
           status: status.todo,
           createAt: new Date(),
           updateAt: new Date(),
